@@ -1,4 +1,6 @@
 <template>
+  {{ data }}
+  <button @click="clearData" class="border rounded-md p-2">Clear Data</button>
   <div>
     <input type="text" v-model="newColumn" />
     <button @click="addColumn">Add Column</button>
@@ -9,13 +11,14 @@
       @drop="onDrop(listName, $event)"
       :get-child-payload="(index) => getChildPayload(listName, index)"
       orientation="vertical"
-      class="border h-full w-1/2"
+      class="border h-full w-1/2 !min-h-[500px]"
       group-name="list"
+      :key="list.id"
     >
       {{ list.title }}
       <input type="text" v-model="newCard" />
       <button @click="addCard(listName)">Add Card</button>
-      <Draggable v-for="item in list.cards" :key="item.id">
+      <Draggable v-for="(item, index) in list.cards" :key="item.id">
         <div
           class="w-[200px] h-[200px] rounded-md bg-gray-200 border border-gray-800"
         >
@@ -24,13 +27,16 @@
       </Draggable>
     </Container>
   </div>
-  {{ data.list1 }} - {{ data.list2 }}
 </template>
 
 <script setup>
 import { Draggable, Container } from "vue-dndrop";
 import { v4 as uuidv4 } from "uuid";
-const data = ref({});
+const data = useLocalStorage("data", {});
+
+const clearData = () => {
+  localStorage.removeItem("data");
+};
 
 const newColumn = ref("");
 const newCard = ref("");
@@ -50,22 +56,25 @@ const addCard = (columnId) => {
 };
 
 const onDrop = (arr, dragResult) => {
-  console.log(arr, dragResult);
   const { removedIndex, addedIndex, payload } = dragResult;
+  console.log(removedIndex, addedIndex, payload);
   if (removedIndex === null && addedIndex === null) return;
 
   // let itemToAdd ;
   if (removedIndex !== null) {
-    data.value[arr].splice(removedIndex, 1)[0];
+    console.log(data.value[arr]);
+
+    data.value[arr].cards.splice(removedIndex, 1)[0];
   }
 
   if (addedIndex !== null) {
-    data.value[arr].splice(addedIndex, 0, payload);
+    // add card to column
+    data.value[arr].cards.splice(addedIndex, 0, payload);
   }
 };
 
 const getChildPayload = (arr, index) => {
-  console.log(arr);
+  console.log(arr, index, data.value[arr]);
   return data.value[arr].cards[index];
 };
 </script>
