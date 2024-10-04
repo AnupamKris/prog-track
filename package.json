@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^11.1.0",
+    "lucide-vue-next": "^0.447.0",
     "pinia": "^2.1.7",
     "sass": "^1.71.0",
     "sass-loader": "^14.1.0",
